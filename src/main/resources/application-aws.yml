@@ -1,0 +1,16 @@
+config:
+  aws:
+    region: us-east-1
+    s3:
+      url: https://konglify-static.s3.us-east-1.amazonaws.com
+      bucket-name: konglify-static
+      access-key: ${ACCESS_KEY}
+      secret-key: ${ACCESS_SECRET}
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:demodb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  h2.console.enabled: true

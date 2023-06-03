@@ -15,7 +15,7 @@
 #      aws_network:
 #        ipv4_address: 172.22.0.6
 
-version: '3.7'
+version: '3.3'
 
 services:
   localstack:

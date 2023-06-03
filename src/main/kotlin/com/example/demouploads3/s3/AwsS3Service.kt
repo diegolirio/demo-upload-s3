@@ -1,19 +1,14 @@
 package com.example.demouploads3.s3
 
+import com.amazonaws.HttpMethod
 import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.model.CannedAccessControlList
-import com.amazonaws.services.s3.model.CreateBucketRequest
-import com.amazonaws.services.s3.model.ObjectListing
-import com.amazonaws.services.s3.model.ObjectMetadata
-import com.amazonaws.services.s3.model.PutObjectResult
-import com.amazonaws.services.s3.model.S3Object
-import com.amazonaws.services.s3.model.S3ObjectInputStream
-import com.amazonaws.services.s3.model.S3ObjectSummary
+import com.amazonaws.services.s3.model.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.*
+
 
 @Service
 class AwsS3Service(
@@ -25,14 +20,24 @@ class AwsS3Service(
 
     fun upload(fileName: String, locationFile: String): FileInfo {
         createS3BucketIfItNotExist(s3Config.bucketName, true)
+
         val putObject = amazonS3.putObject(
             s3Config.bucketName,
             fileName,
             File(locationFile)
         )
         val fileUrl: String = (s3Config.s3EndpointUrl + "/" + s3Config.bucketName) + "/" + fileName
-        println(fileUrl)
-        return FileInfo(fileName = fileName, fileUrl=fileUrl, isUploadSuccessFull=Objects.nonNull(putObject))
+        println("fileUrl=$fileUrl")
+        val url = generateUrl(fileName, HttpMethod.GET)
+        println("url=$url")
+        return FileInfo(fileName = fileName, fileUrl=url, isUploadSuccessFull=Objects.nonNull(putObject))
+    }
+
+    private fun generateUrl(fileName: String, httpMethod: HttpMethod): String {
+        val calendar = Calendar.getInstance()
+        calendar.time = Date()
+        calendar.add(Calendar.DATE, 1)
+        return amazonS3.generatePresignedUrl(s3Config.bucketName, fileName, calendar.time, httpMethod).toString()
     }
 
     fun uploadObjectToS3(fileName: String, fileData: ByteArray): FileInfo {
